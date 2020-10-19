@@ -1,4 +1,4 @@
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const express = require('express');
 const app = express();
@@ -6,9 +6,11 @@ const app = express();
 const pokemon = require('./routes/pokemon');
 
 app.use(morgan('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}));
-//app.use sirve para a;adir middlewares los cuales tratan la informacion de nuestro codigo, es decir nuestras peticiones pasan por estos middlewares
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({extended:true}));
+//app.use sirve para a;adir insturcciones y en este caso middlewares los cuales tratan la informacion de nuestro codigo, es decir nuestras peticiones pasan por estos middlewares
 
 
 
@@ -23,7 +25,7 @@ Delete: Borra algun valor */
 
 app.get('/', (req, res, next) => {
 
-    res.status(200).send("Bienvenido al pokedex");
+    res.status(200).json({code: 1, message: "bienvenido al pokedex"});
 });
 
 app.use("/pokemon", pokemon);
@@ -31,6 +33,11 @@ app.use("/pokemon", pokemon);
 
 // app.listen(3000, () => {
 //     console.log('server is running');
+
+app.use((req, res, next)=>{
+    return res.status(404).json({code:404, message: 'url no encontrada'});
+});
+
 
 // })
 // Esto es para desarrollo
@@ -40,3 +47,5 @@ app.listen(process.env.PORT || 3000, () => {
 
 })
 //Esto es para produccion
+
+//npm remove body-parser--save remover modulos
