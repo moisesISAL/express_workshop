@@ -3,35 +3,51 @@ const pokemon = express.Router();
 //const { pk } = require('../pokedex.json'); //las llaves funcionan como un buscador y toman todo lo que coincida con el nombre
 const db = require('../config/database');
 
-pokemon.post("/", (req, res, next) => {
-    return res.status(200).send(req.body.name);
-})
+pokemon.post("/", async (req, res, next) => {
+
+    const { pok_name, pok_height, pok_weight, pok_base_experience } = req.body; //estamos deconstruyendo estas variables y les agregamos un req.body al inicio, solo funciona con jsons
+   
+    if (pok_name && pok_height && pok_weight && pok_base_experience) {
+        let query = "INSERT INTO pokemon(pok_name, pok_height, pok_weight, pok_base_experience)";
+        query += ` VALUES('${pok_name}', ${pok_height}, ${pok_weight}, ${pok_base_experience})`;
+
+        const rows = await db.query(query);
+
+        if (rows.affectedRows == 1) {
+            return res.status(201).json({ code: 201, message: "pokemon insertado correctamente" });
+        }
+
+        return res.status(500).json({ code: 500, message: "Ocurrio un error" });
+    }
+    return res.status(500).json({code:500, message:"campos incompletos"})
+
+});
 
 pokemon.get("/", async (req, res, next) => { //"/: nos dice que ahora es un variable por lo tanto pdoemos asignarle mas uris pro ejemplo /:nombreX/edad "
     //console.log(req.params.name); //recordemos que req es una peticion del usuario
     const pkmn = await db.query("SELECT * FROM pokemon");
-    return res.status(200).json({code: 1, message: pkmn});
+    return res.status(200).json({ code: 1, message: pkmn });
 });
 
 
 pokemon.get('/:id([0-9]{1,3})', async (req, res, next) => {
     const id = req.params.id - 1;
-    if (id >=1 && id <= 722){
-        const pkmn = await db.query("SELECT * FROM pokemon WHERE pok_id="+id+";");
-        return res.status(200).json({code: 1, message: pkmn})
+    if (id >= 1 && id <= 722) {
+        const pkmn = await db.query("SELECT * FROM pokemon WHERE pok_id=" + id + ";");
+        return res.status(200).json({ code: 1, message: pkmn })
     }
-    return res.status(404).json({code:404, message:"pokemon no encontrado"});
+    return res.status(404).json({ code: 404, message: "pokemon no encontrado" });
 
 });
 
 pokemon.get('/:name([A-Za-z]+)', async (req, res, next) => {
     const name = req.params.name;
-    const pkmn = await db.query("SELECT * FROM pokemon WHERE pok_name='"+name+"';");
-    if(pkmn.length>0){
-        return res.status(200).json({code:1, message:pkmn});
+    const pkmn = await db.query("SELECT * FROM pokemon WHERE pok_name='" + name + "';");
+    if (pkmn.length > 0) {
+        return res.status(200).json({ code: 1, message: pkmn });
 
     }
-    return res.status(404).send({code: 404, message: "pokemon no encontrado"});
+    return res.status(404).send({ code: 404, message: "pokemon no encontrado" });
     // for (i = 0; i < pokemon.length; i++) {
     //     if (pokemon[i].name.toUpperCase() == name.toUpperCase()) {
 
@@ -58,4 +74,4 @@ pokemon.get('/:name([A-Za-z]+)', async (req, res, next) => {
 
 });
 
- module.exports = pokemon; //la forma mas sencilla de exportar pero solo nos permite exportar una sola cosa
+module.exports = pokemon; //la forma mas sencilla de exportar pero solo nos permite exportar una sola cosa
