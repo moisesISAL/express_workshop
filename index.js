@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 //Express lee linea por linea por lo tanto improta el orden de como escribes tus gets, psot, etc.
 const pokemon = require('./routes/pokemon');
+const user = require('./routes/user');
 
 app.use(morgan('dev'));
 app.use(express.json());
@@ -29,6 +30,7 @@ app.get('/', (req, res, next) => {
 });
 
 app.use("/pokemon", pokemon);
+app.use("/user", user);
 
 
 // app.listen(3000, () => {
