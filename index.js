@@ -1,10 +1,17 @@
 // const bodyParser = require('body-parser');
+//Dependencies
 const morgan = require('morgan');
 const express = require('express');
 const app = express();
 //Express lee linea por linea por lo tanto improta el orden de como escribes tus gets, psot, etc.
+//routers
 const pokemon = require('./routes/pokemon');
 const user = require('./routes/user');
+
+//middleware
+const auth = require('./middleware/auth');
+const notFound = require('./middleware/notFound');
+const index = require('./middleware/index');
 
 app.use(morgan('dev'));
 app.use(express.json());
@@ -24,21 +31,18 @@ Patch: Modifica algun elemento
 Put: Modifica Todos los elementos
 Delete: Borra algun valor */
 
-app.get('/', (req, res, next) => {
+app.get('/', index);
 
-    res.status(200).json({code: 1, message: "bienvenido al pokedex"});
-});
-
-app.use("/pokemon", pokemon);
 app.use("/user", user);
+app.use(auth);
+app.use("/pokemon", pokemon);
+
 
 
 // app.listen(3000, () => {
 //     console.log('server is running');
 
-app.use((req, res, next)=>{
-    return res.status(404).json({code:404, message: 'url no encontrada'});
-});
+app.use(notFound);
 
 
 // })
